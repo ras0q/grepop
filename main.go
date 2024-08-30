@@ -17,15 +17,12 @@ import (
 )
 
 var (
-	boxStyle = lipgloss.NewStyle().
-			Bold(true).
-			PaddingLeft(1).
-			PaddingRight(1).
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.ANSIColor(63))
 	ansiStyleRegexp = regexp.MustCompile(`\x1b[[\d;]*m`)
 
-	isDebug = flag.Bool("debug", false, "Debug Mode")
+	isDebug     = flag.Bool("debug", false, "Debug mode")
+	color       = flag.Uint("color", 212, "Foreground color")
+	borderColor = flag.Uint("border-color", 63, "Border foreground color")
+	sleep       = flag.Uint("sleep", 500, "Milliseconds to wait for output")
 )
 
 func main() {
@@ -34,6 +31,14 @@ func main() {
 	if *isDebug {
 		log.SetLevel(log.DebugLevel)
 	}
+
+	boxStyle := lipgloss.NewStyle().
+		Bold(true).
+		PaddingLeft(1).
+		PaddingRight(1).
+		Foreground(lipgloss.ANSIColor(*color)).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.ANSIColor(*borderColor))
 
 	args := flag.Args()
 	log.Debug("parse flag", "args", args)
@@ -134,6 +139,6 @@ func main() {
 		bg = strings.Join(bgLines, "\n")
 
 		fmt.Print(bg)
-		time.Sleep(time.Millisecond * 1000)
+		time.Sleep(time.Millisecond * time.Duration(*sleep))
 	}
 }
