@@ -2,9 +2,11 @@
 
 Interactive and pop `grep` powered by [Charm](https://github.com/charmbracelet) libraries.
 
+![preview](./preview.mp4)
+
 ## Usage
 
-```bash
+```plaintext
 $ grepop --help
 Usage: grep [option]... PATTERN
 
