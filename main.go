@@ -92,7 +92,8 @@ func main() {
 	h = (h * int(*heightPercent)) / 100
 	log.Debug("term size", "w", w, "h", h)
 
-	wrapped := ansi.Hardwrap(string(b), w, true)
+	s := strings.ReplaceAll(string(b), "\t", "    ")
+	wrapped := ansi.Hardwrap(s, w, true)
 
 	matchLocs := re.FindAllStringIndex(wrapped, -1)
 	log.Debug("find", "matches", len(matchLocs))
