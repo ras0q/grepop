@@ -47,17 +47,17 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	var boxVPad, boxHPad int
-	boxStyle := lipgloss.NewStyle().
+	var popupVPad, popupHPad int
+	popupStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.ANSIColor(*color))
 
 	if !*noBorder {
-		boxVPad = 1
-		boxHPad = 2
-		boxStyle = boxStyle.
-			PaddingLeft(boxHPad - 1).
-			PaddingRight(boxHPad - 1).
+		popupVPad = 1
+		popupHPad = 2
+		popupStyle = popupStyle.
+			PaddingLeft(popupHPad - 1).
+			PaddingRight(popupHPad - 1).
 			BorderStyle(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.ANSIColor(*borderColor))
 	}
@@ -104,16 +104,16 @@ func main() {
 	for i, loc := range matchLocs {
 		log.Debug("display popup", "i", i, "loc", loc, "match", wrapped[loc[0]:loc[1]])
 
-		boxLines := strings.Split(
-			boxStyle.Render(fmt.Sprintf("%s", wrapped[loc[0]:loc[1]])),
+		popupLines := strings.Split(
+			popupStyle.Render(fmt.Sprintf("%s", wrapped[loc[0]:loc[1]])),
 			"\n",
 		)
 
 		var row, col, sum int
 		for _row, line := range originalBgLines {
 			if sum+len(line+"\n") > loc[0] {
-				row = _row - boxVPad
-				col = loc[0] - sum - boxHPad
+				row = _row - popupVPad
+				col = loc[0] - sum - popupHPad
 				break
 			}
 
@@ -122,26 +122,26 @@ func main() {
 
 		log.Debug("position", "row", row, "col", col)
 		if *isDebug {
-			actual := originalBgLines[row+boxVPad][col+boxHPad : col+boxHPad+loc[1]-loc[0]]
+			actual := originalBgLines[row+popupVPad][col+popupHPad : col+popupHPad+loc[1]-loc[0]]
 			expected := wrapped[loc[0]:loc[1]]
 			if expected != actual {
 				log.Error("incorrect position", "expected", expected, "actual", actual)
 			}
 		}
 
-		for j := range len(boxLines) {
+		for j := range len(popupLines) {
 			if row+j < 0 {
 				continue
 			}
 
-			if l := row + j + len(boxLines) - len(bgLines); l > 0 {
+			if l := row + j + len(popupLines) - len(bgLines); l > 0 {
 				bgLines = append(
 					bgLines,
 					slices.Repeat([]string{""}, l)...,
 				)
 			}
 
-			boxLine := boxLines[j]
+			popupLine := popupLines[j]
 			bgLine := bgLines[row+j]
 			if sw := ansi.StringWidth(bgLine); sw < col {
 				bgLine += strings.Repeat(" ", col-sw)
@@ -150,22 +150,22 @@ func main() {
 			bgLeft := ansi.Truncate(bgLine, col, "")
 
 			if col < 0 {
-				_boxLine, err := cutLeft(boxLine, -col)
+				_popupLine, err := cutLeft(popupLine, -col)
 				if err != nil {
-					log.Error("cut left of boxLine", "err", err)
+					log.Error("cut left of popupLine", "err", err)
 				}
 
-				log.Debug("boxLine", "boxLine", _boxLine)
+				log.Debug("popupLine", "popupLine", _popupLine)
 
-				boxLine = _boxLine
+				popupLine = _popupLine
 			}
 
-			bgRight, err := cutLeft(bgLine, max(0, col)+ansi.StringWidth(boxLine))
+			bgRight, err := cutLeft(bgLine, max(0, col)+ansi.StringWidth(popupLine))
 			if err != nil {
 				log.Error("cut left of bgLine", "err", err)
 			}
 
-			bgLines[row+j] = ansi.Truncate(bgLeft+boxLine+bgRight, w, "")
+			bgLines[row+j] = ansi.Truncate(bgLeft+popupLine+bgRight, w, "")
 		}
 
 		start, end := 0, len(bgLines)
