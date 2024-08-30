@@ -147,25 +147,25 @@ func main() {
 				bgLine += strings.Repeat(" ", col-sw)
 			}
 
-			bgLeft := ansi.Truncate(bgLine, col, "")
-
 			if col < 0 {
 				_popupLine, err := cutLeft(popupLine, -col)
 				if err != nil {
-					log.Error("cut left of popupLine", "err", err)
+					log.Fatal("cut left of popupLine", "err", err)
 				}
 
-				log.Debug("popupLine", "popupLine", _popupLine)
-
 				popupLine = _popupLine
+				col = 0
 			}
 
-			bgRight, err := cutLeft(bgLine, max(0, col)+ansi.StringWidth(popupLine))
+			bgLeft := ansi.Truncate(bgLine, col, "")
+
+			bgRight, err := cutLeft(bgLine, col+ansi.StringWidth(popupLine))
 			if err != nil {
 				log.Error("cut left of bgLine", "err", err)
 			}
 
 			bgLines[row+j] = ansi.Truncate(bgLeft+popupLine+bgRight, w, "")
+			log.Debug("update line", "left", bgLeft, "popup", popupLine, "right", bgRight)
 		}
 
 		start, end := 0, len(bgLines)
@@ -196,7 +196,7 @@ func cutLeft(line string, padding int) (string, error) {
 	// NOTE: line has no newline, so [strings.Join] after [strings.Split] is safe.
 	wrapped := strings.Split(ansi.Hardwrap(line, padding, true), "\n")
 	if len(wrapped) == 1 {
-		return wrapped[0], nil
+		return "", nil
 	}
 
 	var ansiStyle string
