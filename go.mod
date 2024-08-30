@@ -1,4 +1,4 @@
-module grepop
+module github.com/ras0q/grepop
 
 go 1.23.0
 
