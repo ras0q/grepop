@@ -2,7 +2,7 @@
 
 Interactive and pop `grep` powered by [Charm](https://github.com/charmbracelet) libraries.
 
-![preview](./preview.mp4)
+![preview](./preview.gif)
 
 ## Usage
 
