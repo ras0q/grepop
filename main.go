@@ -20,6 +20,7 @@ var (
 	ansiStyleRegexp = regexp.MustCompile(`\x1b[[\d;]*m`)
 
 	isDebug       = flag.Bool("debug", false, "Debug mode")
+	noBorder      = flag.Bool("no-border", false, "Disable popup border")
 	heightPercent = flag.Uint("height", 90, "Percentage of terminal height")
 	color         = flag.Uint("color", 212, "Foreground color")
 	borderColor   = flag.Uint("border-color", 63, "Border foreground color")
@@ -33,13 +34,20 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	var boxVPad, boxHPad int
 	boxStyle := lipgloss.NewStyle().
 		Bold(true).
-		PaddingLeft(1).
-		PaddingRight(1).
-		Foreground(lipgloss.ANSIColor(*color)).
-		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.ANSIColor(*borderColor))
+		Foreground(lipgloss.ANSIColor(*color))
+
+	if !*noBorder {
+		boxVPad = 1
+		boxHPad = 2
+		boxStyle = boxStyle.
+			PaddingLeft(boxHPad - 1).
+			PaddingRight(boxHPad - 1).
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.ANSIColor(*borderColor))
+	}
 
 	args := flag.Args()
 	log.Debug("parse flag", "args", args)
@@ -89,8 +97,8 @@ func main() {
 		var row, col, sum int
 		for _row, line := range originalBgLines {
 			if sum+len(line+"\n") > loc[0] {
-				row = _row - 1
-				col = loc[0] - sum - 2
+				row = _row - boxVPad
+				col = loc[0] - sum - boxHPad
 				break
 			}
 
