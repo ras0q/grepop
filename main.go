@@ -19,10 +19,11 @@ import (
 var (
 	ansiStyleRegexp = regexp.MustCompile(`\x1b[[\d;]*m`)
 
-	isDebug     = flag.Bool("debug", false, "Debug mode")
-	color       = flag.Uint("color", 212, "Foreground color")
-	borderColor = flag.Uint("border-color", 63, "Border foreground color")
-	sleep       = flag.Uint("sleep", 500, "Milliseconds to wait for output")
+	isDebug       = flag.Bool("debug", false, "Debug mode")
+	heightPercent = flag.Uint("height", 90, "Percentage of terminal height")
+	color         = flag.Uint("color", 212, "Foreground color")
+	borderColor   = flag.Uint("border-color", 63, "Border foreground color")
+	sleep         = flag.Uint("sleep", 500, "Milliseconds to wait for output")
 )
 
 func main() {
@@ -66,6 +67,8 @@ func main() {
 	if err != nil {
 		log.Fatal("get terminal size", "err", err)
 	}
+
+	h = (h * int(*heightPercent)) / 100
 	log.Debug("term size", "w", w, "h", h)
 
 	wrapped := ansi.Hardwrap(string(b), w, true)
@@ -108,7 +111,9 @@ func main() {
 				bgLine += strings.Repeat(" ", col-sw)
 			}
 
-			newBgLine := ansi.Truncate(bgLine, col, "") + boxLine
+			newBgLine := ansi.EraseEntireLine +
+				ansi.Truncate(bgLine, col, "") +
+				boxLine
 
 			// NOTE: bgLine has no newline, so [strings.Join] after [strings.Split] is safe.
 			wrapped := strings.Split(
@@ -137,11 +142,7 @@ func main() {
 		time.Sleep(time.Millisecond * time.Duration(*sleep))
 
 		if i != len(matchLocs)-1 && !*isDebug {
-			fmt.Printf(
-				"%s%s",
-				ansi.CursorPreviousLine(end-start),
-				ansi.EraseEntireLine,
-			)
+			fmt.Print(ansi.CursorPreviousLine(end - start))
 		}
 	}
 }
