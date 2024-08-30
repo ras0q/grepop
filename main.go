@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math/rand/v2"
 	"os"
 	"regexp"
 	"slices"
@@ -32,7 +31,7 @@ var (
 func main() {
 	flag.Parse()
 
-	if isDebug != nil && *isDebug {
+	if *isDebug {
 		log.SetLevel(log.DebugLevel)
 	}
 
@@ -58,8 +57,8 @@ func main() {
 		log.Fatal("read from input", "err", err)
 	}
 
-	matches := re.FindAll(b, -1)
-	log.Debug("find", "matches", len(matches))
+	matchLocs := re.FindAllIndex(b, -1)
+	log.Debug("find", "matches", len(matchLocs))
 
 	w, _, err := term.GetSize(os.Stderr.Fd())
 	if err != nil {
@@ -67,20 +66,37 @@ func main() {
 	}
 
 	bg := string(b)
-	var maxRow int
-	for i, match := range matches {
+	originalBgLines := strings.Split(ansi.Hardwrap(bg, w, true), "\n")
+	for i, loc := range matchLocs {
 		boxLines := strings.Split(
-			boxStyle.Render(fmt.Sprintf("%d: %s", i, match)),
+			boxStyle.Render(fmt.Sprintf("%s", b[loc[0]:loc[1]])),
 			"\n",
 		)
 		bgLines := strings.Split(ansi.Hardwrap(bg, w, true), "\n")
-		if i == 0 {
-			maxRow = len(bgLines)
+
+		if *isDebug {
+			fmt.Println()
+		} else if i > 0 {
+			fmt.Printf(
+				"%s%s",
+				ansi.CursorPreviousLine(len(bgLines)-1),
+				ansi.EraseEntireLine,
+			)
 		}
 
-		row := rand.IntN(maxRow)
-		col := rand.IntN(w - ansi.StringWidth(boxLines[0]))
-		log.Debug("point", "i", i, "row", row, "col", col)
+		var row, col, sum int
+		for _row, line := range originalBgLines {
+			if sum+len(line+"\n") > loc[0] {
+				row = _row - 1
+				col = loc[0] - sum - 2
+				break
+			}
+
+			log.Debug("calc row & col", "i", _row, "sum", sum, "line", len(line))
+			sum += len(line + "\n")
+		}
+
+		log.Debug("point", "i", i, "row", row, "col", col, "loc", loc)
 
 		for j := range len(boxLines) {
 			if l := row + j + len(boxLines) - len(bgLines); l > 0 {
@@ -117,14 +133,7 @@ func main() {
 
 		bg = strings.Join(bgLines, "\n")
 
-		fmt.Printf(
-			"%s%s%s",
-			bg,
-			ansi.CursorPreviousLine(len(bgLines)-1),
-			ansi.CursorLeft(len(bgLines[0])),
-		)
-		time.Sleep(time.Millisecond * 500)
+		fmt.Print(bg)
+		time.Sleep(time.Millisecond * 1000)
 	}
-
-	fmt.Println(bg)
 }
