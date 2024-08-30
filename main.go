@@ -28,6 +28,18 @@ var (
 )
 
 func main() {
+	flag.Usage = func() {
+		fmt.Println(
+			"Usage: grepop [option]... PATTERN\n" +
+				"\n" +
+				"Examples:\n" +
+				"  cat access.log | grepop ERROR\n" +
+				"\n" +
+				"Options:",
+		)
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 
 	if *isDebug {
