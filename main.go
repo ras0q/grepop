@@ -119,9 +119,7 @@ func main() {
 				bgLine += strings.Repeat(" ", col-sw)
 			}
 
-			newBgLine := ansi.EraseEntireLine +
-				ansi.Truncate(bgLine, col, "") +
-				boxLine
+			newBgLine := ansi.Truncate(bgLine, col, "") + boxLine
 
 			// NOTE: bgLine has no newline, so [strings.Join] after [strings.Split] is safe.
 			wrapped := strings.Split(
@@ -137,7 +135,7 @@ func main() {
 				newBgLine += ansiStyle + strings.Join(wrapped[1:], "")
 			}
 
-			bgLines[row+j] = newBgLine
+			bgLines[row+j] = ansi.Truncate(newBgLine, w, "")
 		}
 
 		start, end := 0, len(bgLines)
@@ -146,7 +144,10 @@ func main() {
 			start = max(0, row-padding)
 			end = min(len(bgLines), row-padding+h)
 		}
-		fmt.Println(strings.Join(bgLines[start:end], "\n"))
+		fmt.Println(
+			ansi.EraseEntireLine +
+				strings.Join(bgLines[start:end], "\n"+ansi.EraseEntireLine),
+		)
 		time.Sleep(time.Millisecond * time.Duration(*sleep))
 
 		if i != len(matchLocs)-1 && !*isDebug {
