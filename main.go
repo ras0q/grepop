@@ -62,32 +62,26 @@ func main() {
 		log.Fatal("read from input", "err", err)
 	}
 
-	matchLocs := re.FindAllIndex(b, -1)
-	log.Debug("find", "matches", len(matchLocs))
-
-	w, _, err := term.GetSize(os.Stderr.Fd())
+	w, h, err := term.GetSize(os.Stderr.Fd())
 	if err != nil {
 		log.Fatal("get terminal size", "err", err)
 	}
+	log.Debug("term size", "w", w, "h", h)
 
-	bg := string(b)
-	originalBgLines := strings.Split(ansi.Hardwrap(bg, w, true), "\n")
+	wrapped := ansi.Hardwrap(string(b), w, true)
+
+	matchLocs := re.FindAllStringIndex(wrapped, -1)
+	log.Debug("find", "matches", len(matchLocs))
+
+	originalBgLines := strings.Split(wrapped, "\n")
+	bgLines := make([]string, len(originalBgLines))
+	copy(bgLines, originalBgLines)
+
 	for i, loc := range matchLocs {
 		boxLines := strings.Split(
-			boxStyle.Render(fmt.Sprintf("%s", b[loc[0]:loc[1]])),
+			boxStyle.Render(fmt.Sprintf("%s", wrapped[loc[0]:loc[1]])),
 			"\n",
 		)
-		bgLines := strings.Split(ansi.Hardwrap(bg, w, true), "\n")
-
-		if *isDebug {
-			fmt.Println()
-		} else if i > 0 {
-			fmt.Printf(
-				"%s%s",
-				ansi.CursorPreviousLine(len(bgLines)-1),
-				ansi.EraseEntireLine,
-			)
-		}
 
 		var row, col, sum int
 		for _row, line := range originalBgLines {
@@ -97,11 +91,8 @@ func main() {
 				break
 			}
 
-			log.Debug("calc row & col", "i", _row, "sum", sum, "line", len(line))
 			sum += len(line + "\n")
 		}
-
-		log.Debug("point", "i", i, "row", row, "col", col, "loc", loc)
 
 		for j := range len(boxLines) {
 			if l := row + j + len(boxLines) - len(bgLines); l > 0 {
@@ -136,9 +127,21 @@ func main() {
 			bgLines[row+j] = newBgLine
 		}
 
-		bg = strings.Join(bgLines, "\n")
-
-		fmt.Print(bg)
+		start, end := 0, len(bgLines)
+		if end-start > h {
+			padding := h / 2
+			start = max(0, row-padding)
+			end = min(len(bgLines), row-padding+h)
+		}
+		fmt.Println(strings.Join(bgLines[start:end], "\n"))
 		time.Sleep(time.Millisecond * time.Duration(*sleep))
+
+		if i != len(matchLocs)-1 && !*isDebug {
+			fmt.Printf(
+				"%s%s",
+				ansi.CursorPreviousLine(end-start),
+				ansi.EraseEntireLine,
+			)
+		}
 	}
 }
