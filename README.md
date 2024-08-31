@@ -8,7 +8,7 @@ Pop `grep` powered by [Charm](https://github.com/charmbracelet) libraries.
 
 ```plaintext
 $ grepop --help
-Usage: grep [option]... PATTERN
+Usage: grepop [option]... PATTERN
 
 Examples:
   cat access.log | grepop ERROR
