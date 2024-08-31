@@ -1,6 +1,6 @@
 # grepop
 
-Interactive and pop `grep` powered by [Charm](https://github.com/charmbracelet) libraries.
+Pop `grep` powered by [Charm](https://github.com/charmbracelet) libraries.
 
 ![preview](./preview.gif)
 
