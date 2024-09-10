@@ -27,17 +27,3 @@ Options:
   -sleep uint
         Milliseconds to wait for output (default 500)
 ```
-
-### Examples
-
-General
-
-```bash
-cat main.go | grepop error
-```
-
-Colorized output
-
-```bash
-unbuffer bat --pager never main.go | grepop error
-```
