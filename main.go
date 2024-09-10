@@ -113,8 +113,8 @@ func main() {
 		var row, col, sum int
 		for _row, line := range originalBgLines {
 			if sum+len(line+"\n") > loc[0] {
-				row = _row - popupVPad
-				col = loc[0] - sum - popupHPad
+				row = _row
+				col = loc[0] - sum
 				break
 			}
 
@@ -123,27 +123,30 @@ func main() {
 
 		log.Debug("position", "row", row, "col", col)
 		if *isDebug {
-			actual := originalBgLines[row+popupVPad][col+popupHPad : col+popupHPad+loc[1]-loc[0]]
+			actual := originalBgLines[row][col : col+loc[1]-loc[0]]
 			expected := wrapped[loc[0]:loc[1]]
 			if expected != actual {
 				log.Error("incorrect position", "expected", expected, "actual", actual)
 			}
 		}
 
-		for j := range len(popupLines) {
-			if row+j < 0 {
+		popupStart := row - popupVPad
+		ansiLeftPadding := ansi.StringWidth(originalBgLines[popupStart+popupVPad][:col]) - popupHPad
+
+		for j, popupLine := range popupLines {
+			bgLineRow := popupStart + j
+			if bgLineRow < 0 {
 				continue
 			}
 
-			if l := row + j + len(popupLines) - len(bgLines); l > 0 {
+			if l := bgLineRow + len(popupLines) - len(bgLines); l > 0 {
 				bgLines = append(
 					bgLines,
 					slices.Repeat([]string{""}, l)...,
 				)
 			}
 
-			popupLine := popupLines[j]
-			bgLine := bgLines[row+j]
+			bgLine := bgLines[bgLineRow]
 			if sw := ansi.StringWidth(bgLine); sw < col {
 				bgLine += strings.Repeat(" ", col-sw)
 			}
@@ -158,22 +161,22 @@ func main() {
 				col = 0
 			}
 
-			bgLeft := ansi.Truncate(bgLine, col, "")
+			bgLeft := ansi.Truncate(bgLine, ansiLeftPadding, "")
 
-			bgRight, err := cutLeft(bgLine, col+ansi.StringWidth(popupLine))
+			bgRight, err := cutLeft(bgLine, ansiLeftPadding+ansi.StringWidth(popupLine))
 			if err != nil {
 				log.Error("cut left of bgLine", "err", err)
 			}
 
-			bgLines[row+j] = ansi.Truncate(bgLeft+popupLine+bgRight, w, "")
+			bgLines[bgLineRow] = ansi.Truncate(bgLeft+popupLine+bgRight, w, "")
 			log.Debug("update line", "left", bgLeft, "popup", popupLine, "right", bgRight)
 		}
 
 		start, end := 0, len(bgLines)
 		if end-start > h {
 			padding := h / 2
-			start = max(0, row-padding)
-			end = min(len(bgLines), row-padding+h)
+			start = max(0, popupStart-padding)
+			end = min(len(bgLines), popupStart-padding+h)
 		}
 
 		var prefix string
