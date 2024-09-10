@@ -36,6 +36,8 @@ func main() {
 				"Examples:\n" +
 				"  cat access.log | grepop ERROR\n" +
 				"\n" +
+				"  unbuffer bat --paging never access.log | grepop ERROR\n" +
+				"\n" +
 				"Options:",
 		)
 		flag.PrintDefaults()

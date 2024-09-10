@@ -13,6 +13,8 @@ Usage: grepop [option]... PATTERN
 Examples:
   cat access.log | grepop ERROR
 
+  unbuffer bat --paging never access.log | grepop ERROR
+
 Options:
   -border-color uint
         Border foreground color (default 63)
