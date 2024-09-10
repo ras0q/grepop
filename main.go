@@ -152,14 +152,15 @@ func main() {
 				bgLine += strings.Repeat(" ", col-sw)
 			}
 
-			if col < 0 {
-				_popupLine, err := cutLeft(popupLine, -col)
+			ansiLeftPadding := ansiLeftPadding
+			if ansiLeftPadding < 0 {
+				_popupLine, err := cutLeft(popupLine, -ansiLeftPadding)
 				if err != nil {
 					log.Fatal("cut left of popupLine", "err", err)
 				}
 
 				popupLine = _popupLine
-				col = 0
+				ansiLeftPadding = 0
 			}
 
 			bgLeft := ansi.Truncate(bgLine, ansiLeftPadding, "")
