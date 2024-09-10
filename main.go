@@ -58,8 +58,7 @@ func main() {
 		popupVPad = 1
 		popupHPad = 2
 		popupStyle = popupStyle.
-			PaddingLeft(popupHPad - 1).
-			PaddingRight(popupHPad - 1).
+			Padding(popupVPad-1, popupHPad-1, popupVPad-1, popupHPad-1).
 			BorderStyle(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.ANSIColor(*borderColor))
 	}
