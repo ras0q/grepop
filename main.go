@@ -20,12 +20,13 @@ import (
 var (
 	ansiStyleRegexp = regexp.MustCompile(`\x1b[[\d;]*m`)
 
-	isDebug       = flag.Bool("debug", false, "Debug mode")
-	noBorder      = flag.Bool("no-border", false, "Disable popup border")
-	heightPercent = flag.Uint("height", 90, "Percentage of terminal height")
-	color         = flag.Uint("color", 212, "Foreground color")
-	borderColor   = flag.Uint("border-color", 63, "Border foreground color")
-	sleep         = flag.Uint("sleep", 500, "Milliseconds to wait for output")
+	isDebug        = flag.Bool("debug", false, "Debug mode")
+	noBorder       = flag.Bool("no-border", false, "Disable popup border")
+	borderTemplate = flag.String("border-template", "┏━┓\n┃ ┃\n┗━┛", "Border Template")
+	heightPercent  = flag.Uint("height", 90, "Percentage of terminal height")
+	color          = flag.Uint("color", 212, "Foreground color")
+	borderColor    = flag.Uint("border-color", 63, "Border foreground color")
+	sleep          = flag.Uint("sleep", 500, "Milliseconds to wait for output")
 )
 
 func main() {
@@ -57,9 +58,24 @@ func main() {
 	if !*noBorder {
 		popupVPad = 1
 		popupHPad = 2
+		p := strings.Split(*borderTemplate, "\n")
+		if len(p) != 3 {
+			log.Fatal("Border template must be 3 cols")
+		}
+		t := []rune(p[0])
+		m := []rune(p[1])
+		b := []rune(p[2])
+		if len(t) != 3 || len(m) != 3 || len(b) != 3 {
+			log.Fatalf("Border template's each line must be 3 runes (%d, %d, %d)\n", len(t), len(m), len(b))
+		}
+
 		popupStyle = popupStyle.
 			Padding(popupVPad-1, popupHPad-1, popupVPad-1, popupHPad-1).
-			BorderStyle(lipgloss.RoundedBorder()).
+			BorderStyle(lipgloss.Border{
+				TopLeft: string(t[0]), Top: string(t[1]), TopRight: string(t[2]),
+				Left: string(m[0]), Right: string(m[2]),
+				BottomLeft: string(b[0]), Bottom: string(b[1]), BottomRight: string(b[2]),
+			}).
 			BorderForeground(lipgloss.ANSIColor(*borderColor))
 	}
 
