@@ -202,6 +202,9 @@ func main() {
 			prefix = ansi.EraseEntireLine
 		}
 		fmt.Println(prefix + strings.Join(bgLines[start:end], "\n"+prefix))
+		for range h - (end - start) {
+			fmt.Println(ansi.EraseEntireLine)
+		}
 		time.Sleep(time.Millisecond * time.Duration(*sleep))
 
 		if i != len(matchLocs)-1 && !*isDebug {
