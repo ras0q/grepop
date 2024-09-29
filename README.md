@@ -33,3 +33,5 @@ Options:
   -tab-width uint
         Tab Width (default 8)
 ```
+
+See [./_examples](./_examples)
