@@ -24,6 +24,7 @@ var (
 	noBorder       = flag.Bool("no-border", false, "Disable popup border")
 	borderTemplate = flag.String("border-template", "┏━┓\n┃ ┃\n┗━┛", "Border Template")
 	heightPercent  = flag.Uint("height", 90, "Percentage of terminal height")
+	tabWidth       = flag.Uint("tab-width", 8, "Tab Width")
 	color          = flag.Uint("color", 212, "Foreground color")
 	borderColor    = flag.Uint("border-color", 63, "Border foreground color")
 	sleep          = flag.Uint("sleep", 500, "Milliseconds to wait for output")
@@ -109,7 +110,7 @@ func main() {
 	h = (h * int(*heightPercent)) / 100
 	log.Debug("term size", "w", w, "h", h)
 
-	s := strings.ReplaceAll(string(b), "\t", "    ")
+	s := strings.ReplaceAll(string(b), "\t", strings.Repeat(" ", int(*tabWidth)))
 	wrapped := ansi.Hardwrap(s, w, true)
 
 	matchLocs := re.FindAllStringIndex(wrapped, -1)
