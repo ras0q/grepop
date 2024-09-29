@@ -147,11 +147,10 @@ func main() {
 			}
 		}
 
-		popupStart := row - popupVPad
-		ansiLeftPadding := ansi.StringWidth(originalBgLines[popupStart+popupVPad][:col]) - popupHPad
+		ansiLeftPadding := ansi.StringWidth(originalBgLines[row][:col]) - popupHPad
 
 		for j, popupLine := range popupLines {
-			bgLineRow := popupStart + j
+			bgLineRow := row - popupVPad + j
 			if bgLineRow < 0 {
 				continue
 			}
@@ -191,10 +190,15 @@ func main() {
 		}
 
 		start, end := 0, len(bgLines)
+		// If lines are too long, center the popup.
 		if end-start > h {
 			padding := h / 2
-			start = max(0, popupStart-padding)
-			end = min(len(bgLines), popupStart-padding+h)
+			start = max(0, row-padding)
+			// end = min(len(bgLines), start+h)
+			end = start + h
+			if len(bgLines) < end {
+				bgLines = append(bgLines, make([]string, end-len(bgLines))...)
+			}
 		}
 
 		var prefix string
@@ -202,9 +206,6 @@ func main() {
 			prefix = ansi.EraseEntireLine
 		}
 		fmt.Println(prefix + strings.Join(bgLines[start:end], "\n"+prefix))
-		for range h - (end - start) {
-			fmt.Println(ansi.EraseEntireLine)
-		}
 		time.Sleep(time.Millisecond * time.Duration(*sleep))
 
 		if i != len(matchLocs)-1 && !*isDebug {
