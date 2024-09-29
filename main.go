@@ -163,7 +163,7 @@ func main() {
 				)
 			}
 
-			bgLine := bgLines[bgLineRow]
+			bgLine := strings.TrimSuffix(bgLines[bgLineRow], "\r")
 			if sw := ansi.StringWidth(bgLine); sw < col {
 				bgLine += strings.Repeat(" ", col-sw)
 			}
