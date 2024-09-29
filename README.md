@@ -18,6 +18,8 @@ Examples:
 Options:
   -border-color uint
         Border foreground color (default 63)
+  -border-template string
+        Border Template (default "┏━┓\n┃ ┃\n┗━┛")
   -color uint
         Foreground color (default 212)
   -debug
@@ -28,4 +30,6 @@ Options:
         Disable popup border
   -sleep uint
         Milliseconds to wait for output (default 500)
+  -tab-width uint
+        Tab Width (default 8)
 ```
