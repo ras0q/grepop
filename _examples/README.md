@@ -8,7 +8,7 @@
 
 `grep` (no-color😿)
 
-![grep-nocolor](./grep-nocolor.gif)
+![grep-no-color](./grep-nocolor.gif)
 
 `grepop`
 
@@ -16,7 +16,9 @@
 
 ## Custom options
 
-![grep-custom](./grepop-custom.gif)
+![grepop-no-border](./grepop-no-border.gif)
+
+![grepop-custom](./grepop-custom.gif)
 
 ## With Syntax Highlighter (`bat`)
 
