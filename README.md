@@ -2,7 +2,7 @@
 
 Pop `grep` powered by [Charm](https://github.com/charmbracelet) libraries.
 
-![preview](./preview.gif)
+![Made with VHS](https://vhs.charm.sh/vhs-2sjdwJZOpDo3t7Mf1cBcXQ.gif)
 
 ## Usage
 
